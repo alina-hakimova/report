@@ -70,3 +70,50 @@ sudo apt autoremove - автоматически удалить неисполь
 sudo apt autoclean или clean - удалить кэш
 l -la /var/cache/apt/archives/ - полсмотреть кэш
 
+Нагрузка системы
+top - посмотретm, что присходит с процессором
+load average - нагрузка процессора за 1, 5, 15 минут
+ls /proc/ - происходящие процессцы
+cat /proc/loadaving - нагрузка ситсемы
+nproc --all - посмотереть сколько ядер
+mkdin - для создания дирректории
+insert - в редакторе vi меняет редимы
+написание скрипта (прототип с видео)
+
+s
+doneet -e
+
+
+timeout=$1
+
+while true
+do
+   one_minutes=$(cat /proc/loadavg | awk '{ print $1 }')
+   cpu_cores=$(nproc --all)
+   result =$(echo "${one_minute} > ${cpu_copes}" | bc =l)
+   if [[ $result -eq 1 ]];
+   then
+           #curl -s -L \
+                 #  -X POST https://api.telegram.org/$BOT_ID/sendMessage \
+                 #  -d chat_id=$CHAT_ID \
+                 #  -d text="TEST"
+           echo "shit is happend"
+           echo "'date' ---- $one_minute" >> /home/alina/log/load_average.log
+           sleep $timeout
+           continue
+    fi
+    echo "GOOD"
+    echo $result
+    echo $one_minute
+    sleep $timeout
+    echo "'date' ---- $one_minute" >> /home/alina/log/load_average.log
+Узнать нагрузку получилось, но нашел дирректорию, и в чат-бот отправку тоже не сделала
+
+alina@ubuntuhak:~$ dd if=/dev/zero of=/dev/null командв для проверки нагрузки 
+^C2164698+0 records in
+2164697+0 records out
+1108324864 bytes (1,1 GB, 1,0 GiB) copied, 24,4826 s, 45,3 MB/s
+чтобы данные куда-то направить нужно использовать команду expotrt
+
+
+
