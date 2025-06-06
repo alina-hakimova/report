@@ -1,0 +1,49 @@
+Создание сервиса
+nginx - высокопроизводительный веб-сервер, без него сайт не создать
+кастомный пакет - набор программ или функций, созданный под определенные задачи
+кастомная служба - сервис или программа, которая выполняет определенные задачи
+sudo mv - можно переместить в нужную дирректорию
+l -la - проверить права на папку
+echo - выводит текст на экран
+chmod+x - разрешение скрипту работать
+создание своего сервиса, скрипт
+#!/bin/bash
+# Простейший монитор ресурсов
+echo "=== $(date) ==="
+echo "Диск:"
+df -h / | awk 'NR==2 {print "Использовано: " $5}'
+echo "Нагрузка: $(cat /proc/loadavg)"
+результат
+alina@ubuntuhak:/opt/monitoring_alerts$ cat simple_monitor.sh
+#!/bin/bash
+
+# Простейший монитор ресурсов
+echo "=== $(date) ==="
+echo "Диск:"
+df -h / | awk 'NR==2 {print "Использовано: " $5}'
+echo "Нагрузка: $(cat /proc/loadavg)" 
+Получаем информацию о нагрузке системмы и колличество доступного места
+запуск сервера
+
+alina@ubuntuhak:/opt/monitoring_alerts$ cat /etc/systemd/system/monitoring.service
+[Unit]
+Description=Simple Monitoring Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/monitoring_alerts/simple_monitor.sh
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+результат
+lina@ubuntuhak:/opt/monitoring_alerts$ journalctl -u monitoring.service -f
+июн 06 07:09:13 ubuntuhak systemd[1]: Started monitoring.service - Simple Monitoring Service.
+июн 06 07:09:13 ubuntuhak simple_monitor.sh[354703]: === Пт 06 июн 2025 07:09:13 UTC ===
+июн 06 07:09:13 ubuntuhak simple_monitor.sh[354703]: Диск:
+июн 06 07:09:13 ubuntuhak simple_monitor.sh[354706]: Использовано: 27%
+июн 06 07:09:13 ubuntuhak simple_monitor.sh[354703]: Нагрузка: 0.00 0.02 0.00 1/266 354707
+июн 06 07:09:13 ubuntuhak systemd[1]: monitoring.service: Deactivated successfully.
+journalctl -u monitoring.service -f - проверка работы сервера
