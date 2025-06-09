@@ -50,4 +50,8 @@ sudo nano /etc/fstab
 /dev/sdb1 /mnt/data1 xfs defaults 0 0
 /dev/sdb2 /mnt/data2 xfs defaults 0 0
 
+1. создать вторую виртуальную машину
+2. узнать какой у нее ip адрес
+3. пропинговать вторую машину из первой
+4. на второй машине установить nginx
 
