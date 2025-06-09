@@ -37,6 +37,11 @@ sdb                         8:16   0   20G  0 disk
 2. диски нужнно отформатировать (чтобы система понимала куда и как монтировать данный), в формате XFS, через утилу mkfs.xfs 
 sudo mkfs.xfs /dev/sdb1
 sudo mkfs.xfs /dev/sdb2
+alina@ubuntuhak:/mnt$ blkid /dev/sdb1
+/dev/sdb1: UUID="ddf8b7ca-ee26-4642-878b-6824168df2b3" BLOCK_SIZE="512" TYPE="xfs" PARTUUID="381a7098-01"
+alina@ubuntuhak:/mnt$ blkid /dev/sd2
+alina@ubuntuhak:/mnt$ blkid /dev/sdb2
+/dev/sdb2: UUID="f4f15e06-8ff5-4c60-bff5-2d4d3c8d75ca" BLOCK_SIZE="512" TYPE="xfs" PARTUUID="381a7098-02"
 3. диски нужно смонтировать 
 sudo /mnt/sdb1
 sudo /mnt/sdb2
