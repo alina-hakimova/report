@@ -1,0 +1,319 @@
+доп задание для тебя:
+1. создать вторую виртуальную машину
+  System load:  0.0               Processes:              225
+  Usage of /:   26.8% of 9.75GB   Users logged in:        1
+  Memory usage: 8%                IPv4 address for ens33: 192.168.116.129
+  Swap usage:   0%
+2. узнать какой у нее ip адрес
+IPv4 address for ens33: 192.168.116.129
+3. пропинговать вторую машину из первой
+alina@ubuntuhak:~$ ping 192.168.116.129
+PING 192.168.116.129 (192.168.116.129) 56(84) bytes of data.
+64 bytes from 192.168.116.129: icmp_seq=1 ttl=64 time=0.951 ms
+64 bytes from 192.168.116.129: icmp_seq=2 ttl=64 time=0.664 ms
+64 bytes from 192.168.116.129: icmp_seq=3 ttl=64 time=0.539 ms
+64 bytes from 192.168.116.129: icmp_seq=4 ttl=64 time=0.592 ms
+^C
+--- 192.168.116.129 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3060ms
+rtt min/avg/max/mdev = 0.539/0.686/0.951/0.159 ms
+4. на второй машине установить nginx
+sudo apt install nginx
+5. через curl обратиться из первой машины на вторую и увидеть стандартную страничку nginx
+alina@ubuntuhak:~$ curl 192.168.116.129
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+Nginx работает — сервер корректно установлен и отвечает на HTTP-запросы.
+6. установить tcpdump на двух машинах и перехватить запросы http от клиента к серверу
+sudo apt install tcpdump - на двух машинах
+ip a - узнать сетевой интерейс (связь компьютер с сетью)
+1 машина - ens33
+alina@ubuntuhak:~$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute
+       valid_lft forever preferred_lft forever
+2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:0c:29:a3:6a:a3 brd ff:ff:ff:ff:ff:ff
+    altname enp2s1
+    inet 192.168.116.128/24 metric 100 brd 192.168.116.255 scope global dynamic ens33
+       valid_lft 1519sec preferred_lft 1519sec
+    inet6 fe80::20c:29ff:fea3:6aa3/64 scope link
+       valid_lft forever preferred_lft forever
+2 машина - ens33
+alina2@hakubuntu2:~$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute
+       valid_lft forever preferred_lft forever
+2: ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:0c:29:66:2b:39 brd ff:ff:ff:ff:ff:ff
+    altname enp2s1
+    inet 192.168.116.129/24 metric 100 brd 192.168.116.255 scope global dynamic ens33
+       valid_lft 1346sec preferred_lft 1346sec
+    inet6 fe80::20c:29ff:fe66:2b39/64 scope link
+       valid_lft forever preferred_lft forever
+sudo tcpdump -i lo -A -s0 'port 80' - запускаем на 2 машине (сервере) Эта команда захватит весь трафик на порту 80, включая HTTP-запросы и ответы
+alina2@hakubuntu2:~$ sudo tcpdump -i lo -A -s0 'port 80'
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on lo, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+alina@ubuntuhak:~$ curl http://192.168.116.129
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+запрос с клиента к серверу был успешным, результат почему-то на машине сервера (а где он долен быть, если клиент перехватывает трафик)
+12:37:47.464985 IP 192.168.116.128.42270 > hakubuntu2.http: Flags [.], ack 863, win 496, options [nop,nop,TS val 3221728671 ecr 35531334], length 0
+E..4..@.@.....t...t....P.%..'.......    ......
+......*F
+12:37:47.466027 IP 192.168.116.128.42270 > hakubuntu2.http: Flags [F.], seq 79, ack 863, win 496, options [nop,nop,TS val 3221728672 ecr 35531334], length 0
+E..4..@.@.....t...t....P.%..'.......    ,.....
+......*F
+12:37:47.466167 IP hakubuntu2.http > 192.168.116.128.42270: Flags [F.], seq 863, ack 80, win 509, options [nop,nop,TS val 35531335 ecr 3221728672], length 0
+E..4..@.@.5...t...t..P..'....%......jy.....
+..*G....
+12:37:47.466687 IP 192.168.116.128.42270 > hakubuntu2.http: Flags [.], ack 864, win 496, options [nop,nop,TS val 3221728673 ecr 35531335], length 0
+E..4..@.@.....t...t....P.%..'.......    ).....
+......*G
+7. обратиться к nginx не через ip а через доменное имя(подсказка добавить запись в /etc/hosts)
+alina@ubuntuhak:~$ cat /etc/hosts
+127.0.0.1 localhost
+127.0.1.1 ubuntu_hak
+alina@ubuntuhak:~$ cat /etc/hosts
+127.0.0.1 localhost
+127.0.1.1 ubuntu_hak
+192.168.116.129 myserver.local
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+192.168.116.129 myserver.local - добавила Ip, рядом доменое имя
+alina@ubuntuhak:~$ curl http://myserver.local
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+8. показать таблицу ARP, маршрутизации, какие ip на каждой машине, конфиг файл dns и сетевых интерфейсов
+1 машина
+Arp - адресная книга компьютера, показывает ip адреса и мак адресы
+arp -n
+Address                  HWtype  HWaddress           Flags Mask            Iface
+192.168.116.2            ether   00:50:56:ed:a8:de   C                     ens33
+192.168.116.254          ether   00:50:56:e8:2e:01   C                     ens33
+192.168.116.129          ether   00:0c:29:66:2b:39   C                     ens33
+таблица маршрутизации - показывает номер локальной сети
+route -n
+alina@ubuntuhak:~$ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.116.2   0.0.0.0         UG    100    0        0 ens33
+192.168.116.0   0.0.0.0         255.255.255.0   U     100    0        0 ens33
+192.168.116.2   0.0.0.0         255.255.255.255 UH    100    0        0 ens33
+информация о DNS - сервере
+alina@ubuntuhak:~$ cat /etc/resolv.conf
+# This is /run/systemd/resolve/stub-resolv.conf managed by man:systemd-resolved(8).
+# Do not edit.
+#
+# This file might be symlinked as /etc/resolv.conf. If you're looking at
+# /etc/resolv.conf and seeing this text, you have followed the symlink.
+#
+# This is a dynamic resolv.conf file for connecting local clients to the
+# internal DNS stub resolver of systemd-resolved. This file lists all
+# configured search domains.
+#
+# Run "resolvectl status" to see details about the uplink DNS servers
+# currently in use.
+#
+# Third party programs should typically not access this file directly, but only
+# through the symlink at /etc/resolv.conf. To manage man:resolv.conf(5) in a
+# different way, replace this symlink by a static file or a different symlink.
+#
+# See man:systemd-resolved.service(8) for details about the supported modes of
+# operation for /etc/resolv.conf.
+
+nameserver 127.0.0.53
+options edns0 trust-ad
+search localdomain
+сетевой интерфейс - мост между компьютером и сетью
+alina@ubuntuhak:~$ sudo cat /etc/netplan/*.yaml
+[sudo] password for alina:
+network:
+  version: 2
+  ethernets:
+    ens33:
+      dhcp4: true
+2 машина 
+alina2@hakubuntu2:~$ arp -n
+Address                  HWtype  HWaddress           Flags Mask            Iface
+192.168.116.2            ether   00:50:56:ed:a8:de   C                     ens33
+192.168.116.254          ether   00:50:56:e8:2e:01   C                     ens33
+192.168.116.128          ether   00:0c:29:a3:6a:a3   C                     ens33
+
+alina2@hakubuntu2:~$ route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.116.2   0.0.0.0         UG    100    0        0 ens33
+192.168.116.0   0.0.0.0         255.255.255.0   U     100    0        0 ens33
+192.168.116.2   0.0.0.0         255.255.255.255 UH    100    0        0 ens33
+
+
+alina2@hakubuntu2:~$  cat /etc/resolv.conf
+# This is /run/systemd/resolve/stub-resolv.conf managed by man:systemd-resolved(8).
+# Do not edit.
+#
+# This file might be symlinked as /etc/resolv.conf. If you're looking at
+# /etc/resolv.conf and seeing this text, you have followed the symlink.
+#
+# This is a dynamic resolv.conf file for connecting local clients to the
+# internal DNS stub resolver of systemd-resolved. This file lists all
+# configured search domains.
+#
+# Run "resolvectl status" to see details about the uplink DNS servers
+# currently in use.
+#
+# Third party programs should typically not access this file directly, but only
+# through the symlink at /etc/resolv.conf. To manage man:resolv.conf(5) in a
+# different way, replace this symlink by a static file or a different symlink.
+#
+# See man:systemd-resolved.service(8) for details about the supported modes of
+# operation for /etc/resolv.conf.
+
+nameserver 127.0.0.53
+options edns0 trust-ad
+search localdomain
+
+alina2@hakubuntu2:~$ sudo cat /etc/netplan/*.yaml
+network:
+  version: 2
+  ethernets:
+    ens33:
+      dhcp4: true
+9.  создать собственную страницу html и сделать так чтобы nginx его отдавал
+sudo mkdir -p /var/www/mywebsite - создаем место где будет храниться информацияя веб-сайта
+sudo nano /var/www/mywebsite/index.html - редактор nano, где вводится HTML-код для веб-страницы 
+<html>
+  <head>
+    <title>Мой сайт</title>
+  </head>
+  <body>
+    <h1>Привет, мир!</h1>
+    <p>Добро пожаловать на мой сайт!</p>
+  </body>
+</html>
+ <html> и </html>: Открывает и закрывает HTML-документ.
+
+• <head> и </head>: В этой части содержится заголовок страницы, например, её название.
+
+• <title>Мой сайт</title>: Устанавливает название страницы, которое вы видите на вкладке браузера.
+
+• <body> и </body>: Здесь находится основное содержимое страницы.
+
+• <h1>Привет, мир!</h1>: Заголовок первого уровня с текстом "Привет, мир!".
+
+• <p>Добро пожаловать на мой сайт!</p>: Параграф с текстом "Добро пожаловать на мой сайт!"
+
+alina@ubuntuhak:~$ ls -lR /var/www/mywebsite - проверить права на файл 
+/var/www/mywebsite:
+total 4
+-rwxr-xr-x 1 alina alina 188 июн 10 13:08 index.html
+
+sudo nano /etc/nginx/sites-available/mywebsite - для создания или редактирования файла конфигурации сайта в Nginx
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name 192.168.116.128;
+
+    root /var/www/mywebsite;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+sudo ln -s /etc/nginx/sites-available/mywebsite /etc/nginx/sites-enabled/ - Эта команда создаёт "ярлык" в папке sites-enabled, который указывает на  файл конфигурации в sites-available. 
+Это говорит Nginx, что он должен использовать этот файл конфигурации при запуске
+alina@ubuntuhak:~$ sudo nginx -t - проверка конфигурацию Nginx на ошибки
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
