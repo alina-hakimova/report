@@ -1,0 +1,77 @@
+ЗАДАНИЕ 1
+Запустила 2 Python HTTP сервера
+ python3-m http.server 8001--bind 127.0.0.1
+ python3-m http.server 8002--bind 127.0.0.1
+alina2@hakubuntu2:~$ curl http://127.0.0.1:8001
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Directory listing for /</title>
+</head>
+<body>
+<h1>Directory listing for /</h1>
+<hr>
+<ul>
+<li><a href="bin/">bin@</a></li>
+<li><a href="bin.usr-is-merged/">bin.usr-is-merged/</a></li>
+<li><a href="boot/">boot/</a></li>
+<li><a href="cdrom/">cdrom/</a></li>
+<li><a href="dev/">dev/</a></li>
+<li><a href="etc/">etc/</a></li>
+<li><a href="home/">home/</a></li>
+<li><a href="lib/">lib@</a></li>
+<li><a href="lib.usr-is-merged/">lib.usr-is-merged/</a></li>
+<li><a href="lib64/">lib64@</a></li>
+<li><a href="lost%2Bfound/">lost+found/</a></li>
+<li><a href="media/">media/</a></li>
+<li><a href="mnt/">mnt/</a></li>
+<li><a href="opt/">opt/</a></li>
+<li><a href="proc/">proc/</a></li>
+<li><a href="root/">root/</a></li>
+<li><a href="run/">run/</a></li>
+<li><a href="sbin/">sbin@</a></li>
+<li><a href="sbin.usr-is-merged/">sbin.usr-is-merged/</a></li>
+<li><a href="snap/">snap/</a></li>
+<li><a href="srv/">srv/</a></li>
+<li><a href="sys/">sys/</a></li>
+<li><a href="tmp/">tmp/</a></li>
+<li><a href="usr/">usr/</a></li>
+<li><a href="var/">var/</a></li>
+</ul>
+<hr>
+</body>
+</html>
+alina2@hakubuntu2:~$ curl http://127.0.0.1:8002
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Directory listing for /</title>
+</head>
+<body>
+<h1>Directory listing for /</h1>
+<hr>
+<ul>
+<li><a href=".bash_history">.bash_history</a></li>
+<li><a href=".bash_logout">.bash_logout</a></li>
+<li><a href=".bashrc">.bashrc</a></li>
+<li><a href=".cache/">.cache/</a></li>
+<li><a href=".profile">.profile</a></li>
+<li><a href=".ssh/">.ssh/</a></li>
+<li><a href=".sudo_as_admin_successful">.sudo_as_admin_successful</a></li>
+<li><a href=".Xauthority">.Xauthority</a></li>
+<li><a href="upstreams.conf">upstreams.conf</a></li>
+</ul>
+<hr>
+</body>
+</html>
+все рабоатет работа проверена в браузере
+3 Добавлены upstream-блоки
+upstream backend_app {
+ server 127.0.0.1:8001;
+ }
+7 часов учебного времени
+ upstream backend_api {
+ server 127.0.0.1:8002;
+ }
