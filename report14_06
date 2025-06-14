@@ -1,0 +1,35 @@
+1. Установка зависимостей
+Успешно установлены все необходимые пакеты: nginx, openssl, python3, python3-pip, golang, default-jdk, nodejs, npm, curl, nano.
+2. Развертывание приложений
+Все 4 приложения были успешно развернуты на соответствующих портах:
+Python (Flask)
+Порт: 8001
+Запущено приложение с выводом: "Hello from Python Flask!"
+Node.js (Express)
+Порт: 8002
+Запущено приложение с выводом: "Hello from Node.js Express!"
+Go
+Порт: 8003
+Запущено приложение с выводом: "Hello from Go!"
+Java (Spring Boot)
+Порт: 8004
+Запущено приложение с выводом: "Hello from Java Spring Boot!"
+3. Настройка NGINX
+Создан самоподписанный SSL-сертификат для домена helloworld.alinadobs
+Настроен файл конфигурации NGINX с:
+SSL-терминацией
+Gzip-сжатием
+Обратным проксированием для каждого приложения:
+/python/ → порт 8001
+/node/ → порт 8002
+/go/ → порт 8003
+/java/ → порт 8004
+Конфигурация NGINX успешно проверена и активирована
+4. Настройка DNS
+Добавлена запись в файл hosts для домена helloworld.alinadobs, указывающая на 127.0.0.1
+Проверка работоспособности
+Все конечные точки успешно отвечают через HTTPS:
+https://helloworld.alinadobs/python/ → "Hello from Python Flask!"
+https://helloworld.alinadobs/node/ → "Hello from Node.js Express!"
+https://helloworld.alinadobs/go/ → "Hello from Go!"
+https://helloworld.alinadobs/java/ → "Hello from Java Spring Boot!"
