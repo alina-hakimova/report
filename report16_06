@@ -1,0 +1,82 @@
+Docker - сервис для запуска приложений в контейнерах
+- приложеня запускаются в изолированной среде
+- легко запускать на разных серверах
+-все зависимости устанавливаются внутри контейнеров
+- легко максшибировать путем увеличения контейнеров
+- удобно использоват в процессе разработки приложений
+контейнер - самый маленький элемент в мире docker
+-client - клиент
+- daemon - служба
+- host - хост
+- conteiner - контейнер
+- image - образ
+- репозиторий
+- реестр
+строение образа 
+-базовый слой
+- слой 1
+- слой 2
+- слой 3
+все слои - read only
+можно перемещать и удалять 
+образы хранятся в репоозиториях 
+есть офиц. образы и образы сообщества
+каждый образ - набор слоев
+каждый слой - набор файлов
+образы статичны  - вносить изменения нельзя
+репозиторий
+- хранить разные версии образа
+- разные версии помечаются разными тегами
+- версия может иметь несколько тегов
+docker version - узать актуальную версию
+alina2@hakubuntu2:~$ docker version
+Client: Docker Engine - Community
+ Version:           28.2.2
+ API version:       1.50
+ Go version:        go1.24.3
+ Git commit:        e6534b4
+ Built:             Fri May 30 12:07:27 2025
+ OS/Arch:           linux/amd64
+ Context:           default
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          28.2.2
+  API version:      1.50 (minimum version 1.24)
+  Go version:       go1.24.3
+  Git commit:       45873be
+  Built:            Fri May 30 12:07:27 2025
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          1.7.27
+  GitCommit:        05044ec0a9a75232cad458027ca83437aae3f4da
+ runc:
+  Version:          1.2.5
+  GitCommit:        v1.2.5-0-g59923ef
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+docker ps -a - показывает все доступные контейнеры
+alina2@hakubuntu2:~$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED             STATUS                         PORTS     NAMES
+282eebaddc7e   nginx     "/docker-entrypoint.…"   About an hour ago   Exited (0) About an hour ago             peaceful_borg
+dd7483e32552   nginx     "/docker-entrypoint.…"   About an hour ago   Exited (0) About an hour ago             sleepy_mclean
+docker ps - запущенные контейнеры
+docker images - список всех образов которые находятся на компьютере
+docker run - создает и запускает контейнер
+docker rm - удаляет
+docker - есть свой hostname и ip
+exit - завершить процесс
+docker contriner prune - удалить все остановленные  контейнеры
+docker run -d - запустить в фоновом режиме
+docker container inspect - покажет все детали контейнера
+docke stop - остановить контейнер
+docker exec - выполнет команду в запущенном контейнере
+docker run - d --name - создатькастомное имя
+docker run -p - мейпиинг портов
+docker run -v - мейпинг томов
+${PWD} - абсолютный путь к текущей папке
+устнавила графический интерфес
+8 часов  учебного времени
+
