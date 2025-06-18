@@ -1,0 +1,73 @@
+Чек лист первого задания
+1. Используются .env и переменные окружения  UID и GID пришлось поменять на 1001
+В корне проекта есть файл .env с переменными:
+PYTHON_PORT=8091
+NODE_PORT=8092
+GO_PORT=8093
+JAVA_PORT=8094
+SECRET_KEY=supersecret
+UID=1001
+GID=1001
+Каждый сервис (Python, Node.js, Go, Java) имеет свой .env
+2. Используются Docker secrets
+alina2@hakubuntu2:~/Desktop/docker/project-root$ cat secrets/app_secret.txt
+docker compose exec python_app cat /run/secrets/app_secret
+my_super_secret_password_123
+3. Все сервисы используют volumes
+alina2@hakubuntu2:~/Desktop/docker/project-root$ docker volume ls | grep project-root
+local     project-root_go_data
+local     project-root_go_logs
+local     project-root_java_data
+local     project-root_java_logs
+local     project-root_nginx_logs
+local     project-root_node_data
+local     project-root_node_logs
+local     project-root_python_data
+local     project-root_python_logs
+4. Сервисы разделены по сетям
+alina2@hakubuntu2:~/Desktop/docker/project-root$ docker network ls | grep project-root
+docker inspect project-root_backend
+371ef90280e1   project-root_backend    bridge    local
+f9711ded766a   project-root_frontend   bridge    local
+5. Контейнеры не запускаются под root
+alina2@hakubuntu2:~/Desktop/docker/project-root$ docker compose exec python_app whoami  
+appuser
+6. Для всех сервисов прописан healthcheck
+alina2@hakubuntu2:~/Desktop/docker/project-root$ docker compose ps
+NAME                        IMAGE                     COMMAND                  SERVICE      CREATED              STATUS                        PORTS
+project-root-go_app-1       project-root-go_app       "./main"                 go_app       About a minute ago   Up About a minute (healthy)   0.0.0.0:8093->8093/tcp, [::]:8093->8093/tcp
+project-root-java_app-1     project-root-java_app     "java -jar app.jar"      java_app     About a minute ago   Up About a minute (healthy)   0.0.0.0:8094->8094/tcp, [::]:8094->8094/tcp
+project-root-node_app-1     project-root-node_app     "node index.js"          node_app     About a minute ago   Up About a minute (healthy)   0.0.0.0:8092->8092/tcp, [::]:8092->8092/tcp
+project-root-python_app-1   project-root-python_app   "gunicorn --bind 0.0…"   python_app   About a minute ago   Up About a minute (healthy)   0.0.0.0:8091->8091/tcp, [::]:8091->8091/tcp
+7. Логи пишутся в volume
+alina2@hakubuntu2:~/Desktop/docker/project-root$ docker compose logs python_app
+docker volume inspect project-root_python_logs
+python_app-1  | [2025-06-18 16:39:26 +0000] [1] [INFO] Starting gunicorn 23.0.0
+python_app-1  | [2025-06-18 16:39:26 +0000] [1] [INFO] Listening at: http://0.0.0.0:8091 (1)
+python_app-1  | [2025-06-18 16:39:26 +0000] [1] [INFO] Using worker: sync
+python_app-1  | [2025-06-18 16:39:26 +0000] [6] [INFO] Booting worker with pid: 6
+[
+    {
+        "CreatedAt": "2025-06-18T12:59:53Z",
+        "Driver": "local",
+        "Labels": {
+            "com.docker.compose.config-hash": "8e3e6e515ff0195ef67190bca9fc50cf9b9621a86617331db12946cd7aeaa3a3",
+            "com.docker.compose.project": "project-root",
+            "com.docker.compose.version": "2.35.1",
+            "com.docker.compose.volume": "python_logs"
+        },
+        "Mountpoint": "/var/lib/docker/volumes/project-root_python_logs/_data",
+        "Name": "project-root_python_logs",
+        "Options": null,
+        "Scope": "local"
+    }
+8. Используются build, CMD, ENTRYPOINT
+  alina2@hakubuntu2:~/Desktop/docker/project-root$ docker compose exec python_app ps aux
+OCI runtime exec failed: exec failed: unable to start container process: exec: "ps": executable file not found in $PATH: unknown
+
+alina2@hakubuntu2:~/Desktop/docker/project-root$ ^C
+alina2@hakubuntu2:~/Desktop/docker/project-root$ docker compose exec node_app ps aux
+PID   USER     TIME  COMMAND
+    1 appuser   0:00 node index.js
+   88 appuser   0:00 ps aux
+C ПАЙТОН НЕ ПОЛУЧИЛОСЬ
