@@ -1,0 +1,21 @@
+1. Все контейнеры успешно собираются и запускаются
+[+] Running 10/10
+ ✔ go_app                 Built                                                                                    0.0s
+ ✔ java_app               Built                                                                                    0.0s
+ ✔ nginx                  Built                                                                                    0.0s
+ ✔ node_app               Built                                                                                    0.0s
+ ✔ python_app             Built                                                                                    0.0s
+ ✔ Container go_app       Recreated                                                                                0.6s
+ ✔ Container python_app   Recreated                                                                               10.8s
+ ✔ Container java_app     Recreated                                                                                0.9s
+ ✔ Container node_app     Recreated                                                                               10.6s
+ ✔ Container nginx_proxy  Recreated  
+ 2. Все 4 приложения работают на своих портах внутри сети Docker и NGINX проксирует запросы с /python, /node, /go, /java и TTPS работает через https://helloworld.alinadobs/
+PS C:\Users\Machcreator\docker\project-root> curl.exe -k https://localhost/node/
+Hello from Node.js Express!
+PS C:\Users\Machcreator\docker\project-root> curl.exe -k https://localhost/go/
+Hello from Go!
+PS C:\Users\Machcreator\docker\project-root> curl.exe -k https://localhost/java/
+Hello from Java!
+PS C:\Users\Machcreator\docker\project-root>  curl.exe -k https://localhost/python/
+Hello from Python Flask!
