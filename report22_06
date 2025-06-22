@@ -1,0 +1,62 @@
+Ansible - система управления серверами
+- управлять конфигурациями
+- развертывать приложения
+Работает по принципу "agentless" - не требует установки агентов на управляемые узлы
+Использует SSH для Linux и WinRM для Windows
+alina2@hakubuntu2:~/ansible$ ansible -i hosts.txt all -m ping
+[WARNING]: Platform linux on host linux1 is using the discovered Python interpreter at /usr/bin/python3.12, but future installation of another Python
+interpreter could change the meaning of that path. See https://docs.ansible.com/ansible-core/2.18/reference_appendices/interpreter_discovery.html for more
+information.
+linux1 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.12"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+Работает по схеме "push" - команды отправляются с управляющего узла
+Использует YAML для описания конфигураций (playbooks)
+Inventory - список управляемых узлов
+Modules - отдельные команды/действия
+Playbooks - сценарии автоматизации
+Roles - переиспользуемые компоненты
+ Установка Ansible на Ubuntu 16.04
+sudo apt-add-repository ppa:ansible/ansible
+sudo apt-get update
+sudo apt-get install ansible
+ansible --version
+Для подключения к Linux серверам Ansible использует SSH. Необходимо: настроить SSH-ключи для доступа без пароля
+Указать серверы в inventory файле
+Пример inventory (/etc/ansible/hosts):
+[staging_servers]
+linux1 ansible_host=192.168.116.131 ansible_user=alina ansible_ssh_private_key_file=/home/alina2/.ssh/alina2
+Проверка подключения:
+ansible all -m ping
+Для Windows требуется:
+Настроить WinRM 
+Установить pywinrm на управляющем узле
+Правила создания файла Inventory
+Inventory файл может быть в формате I YAML. 
+начинается с ---, все через - и :
+---
+- name: Text Connection to my servers
+  hosts: all
+  become: yes
+
+  tasks:
+
+   - name: Ping my servers
+     ping: 
+Запуск Ad-Hoc команд
+ansible all -m ping - проверить доступность к серверам
+ansible web_servers -m shell -a "free -m" - память
+ansible ubuntu_servers -m apt -a "name=nginx state=present" - установить пакет
+setup - сканирует срвис
+shell - написать лубую команду
+Перенос переменных в group_vars
+Для лучшей организации переменные нужно выносить в отдельные файлы.
+Структура playbook:
+Hosts - на каких узлах выполнять
+Variables - переменные
+Tasks - последовательность задач
+Handlers - специальные задачи, вызываемые по уведомлению
