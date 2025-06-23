@@ -1,0 +1,64 @@
+Playbook - в формате yml, прописывают конфигурации для разных сайтов, пример
+---
+- name: Install Nginx
+  hosts: webservers
+  tasks:
+    - name: Install nginx package
+      apt:
+        name: nginx
+        state: present
+ Копирование 
+yaml
+---
+- name: Copy config file
+  hosts: webservers
+  tasks:
+    - name: Copy nginx config
+      copy:
+        src: /local/path/nginx.conf
+        dest: /etc/nginx/nginx.conf
+Debug - вывод информации в консоль
+ tasks:
+    - name: Print Secret variable
+      debug:
+        var: secret
+    - debug:
+        msg: "Secretnoe slovo: {{ secret }}"
+Set_fact - создание переменной во время выполнения
+Register - сохранение результата задачи в переменную:
+Block-When - группирует задачи, when задаёт условие, пример если хочу запусстить на конкретном сервере
+Loop - созданияе циклов:
+  loop:
+    - git
+    - curl
+    - wget
+ Jinja2 - конфигурационные файлы с переменными - формат .j2
+yaml
+- name: Configure Nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+Создание Ролей - помогают организовать код. Структура:
+ansible-galaxy init - создает дирректорию
+yaml
+---
+- name: Apply common configuration
+  hosts: all
+  roles:
+    - common
+extra-vars - передача внешних переменных, способ передать в playbool переменные прямо из командной строки
+переменная -e
+ansible-playbook playbook.yml -e 
+Import - подставляет содержимое файла сразу при чтении playbok
+Include - подключает файл только при выполнении задач
+delegate_to - пользумся тогда когда нужно выполнить команду на каком-то конкретном сервисе
+ansible-vault
+шифрование файлов:
+yaml
+- name: Use encrypted vars
+  hosts: all
+  vars_files:
+    - secret.yml
+Запуск с паролем:
+bash
+ansible-playbook playbook.yml --ask-vault-pass
