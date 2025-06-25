@@ -1,0 +1,123 @@
+Структура проекта
+alina2@hakubuntu2:~/ansible/helloworld-proxy-ansible$ tree
+.
+├── group_vars
+│   └── all.yml
+├── inventory.ini
+├── playbook.yml
+├── roles
+│   ├── common
+│   │   └── tasks
+│   │       └── main.yml
+│   ├── go_app
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   └── templates
+│   │       └── systemd
+│   │           └── go_app.service.j2
+│   ├── java_app
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   └── templates
+│   │       ├──  java
+│   │       ├── java
+│   │       │   └── HelloWorld.java.j2
+│   │       └── systemd
+│   │           └── java_app.service.j2
+│   ├── nginx_proxy
+│   │   └── tasks
+│   │       └── main.yml
+│   ├── node_app
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   └── templates
+│   │       └── systemd
+│   │           └── node_app.service.j2
+│   └── python_app
+│       ├── tasks
+│       │   └── main.yml
+│       └── templates
+│           └── systemd
+│               └── python_app.service.j2
+└── templates
+    └── nginx
+        └── helloworld.j2
+
+27 directories, 15 files
+
+systemctl status nginx       # Проверка NGINX
+● python_app.service - Python Hello World App
+     Loaded: loaded (/etc/systemd/system/python_app.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2025-06-24 13:57:16 UTC; 17h ago
+   Main PID: 14676 (python3)
+      Tasks: 1 (limit: 4548)
+     Memory: 21.1M (peak: 21.6M)
+        CPU: 5.784s
+     CGroup: /system.slice/python_app.service
+             └─14676 /usr/bin/python3 /opt/python_app/app.py
+● node_app.service - Node.js Hello World App
+     Loaded: loaded (/etc/systemd/system/node_app.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2025-06-25 07:10:20 UTC; 32min ago
+   Main PID: 46888 (node)
+      Tasks: 10 (limit: 4548)
+     Memory: 17.6M (peak: 23.1M)
+        CPU: 551ms
+     CGroup: /system.slice/node_app.service
+             └─46888 /usr/bin/node /opt/node_app/app.js
+
+июн 25 07:10:20 alina2 systemd[1]: Started node_app.service - Node.js Hello World App.
+alina@alina2:/$ systemctl status go_app
+● go_app.service - Go Hello World App
+     Loaded: loaded (/etc/systemd/system/go_app.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2025-06-25 06:36:05 UTC; 1h 7min ago
+   Main PID: 39168 (app)
+      Tasks: 5 (limit: 4548)
+     Memory: 1.0M (peak: 1.3M)
+        CPU: 21ms
+     CGroup: /system.slice/go_app.service
+             └─39168 /opt/go_app/app
+
+июн 25 06:36:05 alina2 systemd[1]: Started go_app.service - Go Hello World App.
+alina@alina2:/$ systemctl status java_app
+● java_app.service - Java Hello World App
+     Loaded: loaded (/etc/systemd/system/java_app.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2025-06-25 07:41:02 UTC; 2min 19s ago
+   Main PID: 52630 (java)
+      Tasks: 18 (limit: 4548)
+     Memory: 16.8M (peak: 17.3M)
+        CPU: 619ms
+     CGroup: /system.slice/java_app.service
+             └─52630 /usr/bin/java -cp /opt/java_app/classes HelloWorld
+
+июн 25 07:41:02 alina2 systemd[1]: Started java_app.service - Java Hello World App.
+июн 25 07:41:02 alina2 java[52630]: Hello World from Ansible!
+alina@alina2:/$ systemctl status nginx
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2025-06-24 13:09:34 UTC; 18h ago
+       Docs: man:nginx(8)
+   Main PID: 10919 (nginx)
+      Tasks: 3 (limit: 4548)
+     Memory: 2.4M (peak: 2.8M)
+        CPU: 51ms
+     CGroup: /system.slice/nginx.service
+             ├─10919 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"
+             ├─10920 "nginx: worker process"
+             └─10921 "nginx: worker process"
+alina@alina2:/$ ss -tulnp | grep -E '8001|8002|8003|8004'
+tcp   LISTEN 0      128                  0.0.0.0:8001      0.0.0.0:*    users:(("python3",pid=14676,fd=3))
+tcp   LISTEN 0      511                  0.0.0.0:8002      0.0.0.0:*    users:(("node",pid=46888,fd=24))
+tcp   LISTEN 0      4096                       *:8003            *:*    users:(("app",pid=39168,fd=3))
+логи java
+alina@alina2:/$ journalctl -u java_app -f
+июн 25 08:15:23 alina2 systemd[1]: Stopped java_app.service - Java HTTP Server.
+июн 25 08:15:23 alina2 systemd[1]: java_app.service: Consumed 8.052s CPU time, 17.3M memory peak, 0B memory swap peak.
+июн 25 08:15:23 alina2 systemd[1]: Started java_app.service - Java HTTP Server.
+июн 25 08:15:23 alina2 java[62911]: Hello World from Ansible!
+июн 25 08:16:56 alina2 systemd[1]: Stopping java_app.service - Java HTTP Server...
+июн 25 08:16:56 alina2 systemd[1]: java_app.service: Main process exited, code=exited, status=143/n/a
+июн 25 08:16:56 alina2 systemd[1]: java_app.service: Failed with result 'exit-code'.
+июн 25 08:16:56 alina2 systemd[1]: Stopped java_app.service - Java HTTP Server.
+июн 25 08:16:56 alina2 systemd[1]: Started java_app.service - Java HTTP Server.
+июн 25 08:16:56 alina2 java[63476]: Hello World from Ansible!
+
